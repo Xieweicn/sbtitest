@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SBTI 超级边界型人格测试</title>
+  <style>
+    :root {
+      --green: #4D6A53;
+      --green-dark: #36503d;
+      --green-soft: #edf5ee;
+      --ink: #243027;
+      --muted: #6f7d72;
+      --card: #FFFFFF;
+      --line: rgba(77, 106, 83, .16);
+      --shadow: 0 22px 60px rgba(55, 78, 60, .14);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at left top, #F8FFF8 0%, #F6FAF6 45%, #F2F7F3 100%);
+    }
+
+    button, input, textarea { font: inherit; }
+
+    .shell {
+      width: min(1080px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 38px 0 46px;
+    }
+
+    .page {
+      animation: fadeIn .2s ease both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      min-height: calc(100vh - 84px);
+      display: grid;
+      place-items: center;
+    }
+
+    .hero-card, .question-card, .result-card, .mini-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(77, 106, 83, .08);
+    }
+
+    .hero-card {
+      width: min(860px, 100%);
+      padding: clamp(28px, 5vw, 64px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: rgba(77, 106, 83, .08);
+      right: -120px;
+      top: -120px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 700;
+      letter-spacing: .06em;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--green);
+      font-size: clamp(34px, 6vw, 64px);
+      line-height: 1.08;
+      letter-spacing: -0.05em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .subtitle {
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .intro {
+      width: min(680px, 100%);
+      margin: 30px auto 34px;
+      font-size: 18px;
+      line-height: 1.85;
+      color: #3d4a40;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn {
+      border: 0;
+      cursor: pointer;
+      color: #fff;
+      background: var(--green);
+      border-radius: 999px;
+      padding: 15px 30px;
+      font-weight: 800;
+      letter-spacing: .02em;
+      box-shadow: 0 12px 24px rgba(77, 106, 83, .24);
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 52px;
+    }
+
+    .btn:hover { transform: scale(1.05); background: var(--green-dark); }
+    .btn:active { transform: scale(.99); }
+    .btn.big { font-size: 22px; padding: 18px 44px; }
+    .btn.ghost {
+      color: var(--green);
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+    .btn.ghost:hover { background: var(--green-soft); }
+    .btn.full { width: 100%; }
+
+    .test-head {
+      margin-bottom: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(77, 106, 83, .12);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--green);
+      transition: width .25s ease;
+    }
+
+    .question-card {
+      padding: clamp(22px, 4vw, 42px);
+      margin-top: 18px;
+    }
+
+    .hidden-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: var(--green);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .q-title {
+      font-size: clamp(23px, 4vw, 34px);
+      line-height: 1.35;
+      letter-spacing: -0.03em;
+      margin: 0 0 28px;
+      color: #243027;
+    }
+
+    .options {
+      display: grid;
+      gap: 14px;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: center;
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+      color: var(--ink);
+    }
+
+    .option:hover {
+      transform: scale(1.015);
+      border-color: rgba(77, 106, 83, .45);
+      box-shadow: 0 12px 26px rgba(77, 106, 83, .10);
+    }
+
+    .option.selected {
+      background: var(--green-soft);
+      border-color: var(--green);
+    }
+
+    .option .letter {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(77, 106, 83, .12);
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .option.selected .letter {
+      background: var(--green);
+      color: white;
+    }
+
+    .question-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .tiny-note {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .result-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .result-card {
+      padding: clamp(22px, 4vw, 38px);
+      display: grid;
+      grid-template-columns: minmax(180px, 300px) 1fr;
+      gap: clamp(20px, 5vw, 44px);
+      align-items: center;
+    }
+
+    .avatar-card {
+      min-height: 240px;
+      border-radius: 26px;
+      background: radial-gradient(circle at 30% 20%, #ffffff 0%, #eef7f0 70%);
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .avatar-card::after {
+      content: "SBTI";
+      position: absolute;
+      bottom: 16px;
+      right: 18px;
+      color: rgba(77, 106, 83, .16);
+      font-weight: 900;
+      letter-spacing: .16em;
+    }
+
+    .avatar {
+      font-size: clamp(78px, 13vw, 132px);
+      filter: drop-shadow(0 14px 20px rgba(77, 106, 83, .14));
+    }
+
+    .code {
+      display: inline-flex;
+      color: #fff;
+      background: var(--green);
+      padding: 7px 14px;
+      border-radius: 14px;
+      font-size: clamp(32px, 6vw, 58px);
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: .05em;
+    }
+
+    .type-name {
+      margin: 18px 0 8px;
+      color: var(--green);
+      font-size: clamp(28px, 5vw, 46px);
+      line-height: 1.1;
+      letter-spacing: -0.05em;
+    }
+
+    .slogan {
+      margin: 0;
+      color: #4a574d;
+      font-size: 18px;
+      line-height: 1.7;
+      font-weight: 700;
+    }
+
+    .match-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--green);
+      background: var(--green-soft);
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-weight: 900;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 18px;
+    }
+
+    .mini-card {
+      padding: clamp(20px, 3vw, 30px);
+    }
+
+    .mini-card h2 {
+      margin: 0 0 16px;
+      color: var(--green);
+      font-size: 23px;
+      letter-spacing: -0.03em;
+    }
+
+    .read-text {
+      font-size: 17px;
+      line-height: 1.9;
+      color: #354139;
+      margin: 0;
+      white-space: pre-line;
+    }
+
+    .dims {
+      display: grid;
+      gap: 16px;
+    }
+
+    .cat {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .cat-title {
+      padding: 12px 14px;
+      color: #fff;
+      background: var(--green);
+      font-weight: 900;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .dim-row {
+      display: grid;
+      grid-template-columns: minmax(112px, 1fr) 74px 1.3fr;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 14px;
+      border-top: 1px solid rgba(77, 106, 83, .10);
+      font-size: 14px;
+    }
+
+    .dim-name { font-weight: 800; color: #2d3931; }
+    .grade {
+      justify-self: start;
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      color: var(--green);
+      background: var(--green-soft);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .dim-comment { color: var(--muted); }
+
+    .disclaimer {
+      text-align: center;
+      color: var(--muted);
+      margin: 22px 0 16px;
+      font-size: 13px;
+    }
+
+    .footer-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 24px, 1080px); padding: 20px 0 34px; }
+      .hero-card { padding: 30px 20px; }
+      .intro { font-size: 16px; }
+      .result-card { grid-template-columns: 1fr; }
+      .avatar-card { min-height: 210px; }
+      .mini-grid { grid-template-columns: 1fr; }
+      .dim-row { grid-template-columns: 1fr; gap: 7px; }
+      .question-actions .btn { width: 100%; }
+      .question-actions { align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <main id="app" class="shell"></main>
+
+  <script>
+    const STORAGE_KEY = 'sbti-super-boundary-state-v1';
+
+    const DIMENSIONS = [
+      { key: 'S1', cat: 'S', name: '自尊自信' },
+      { key: 'S2', cat: 'S', name: '自我清晰度' },
+      { key: 'S3', cat: 'S', name: '核心价值' },
+      { key: 'E1', cat: 'E', name: '依恋安全感' },
+      { key: 'E2', cat: 'E', name: '情感投入度' },
+      { key: 'E3', cat: 'E', name: '边界与依赖' },
+      { key: 'A1', cat: 'A', name: '世界观倾向' },
+      { key: 'A2', cat: 'A', name: '规则与灵活度' },
+      { key: 'A3', cat: 'A', name: '人生意义感' },
+      { key: 'Ac1', cat: 'Ac', name: '动机导向' },
+      { key: 'Ac2', cat: 'Ac', name: '决策风格' },
+      { key: 'Ac3', cat: 'Ac', name: '执行模式' },
+      { key: 'So1', cat: 'So', name: '社交主动性' },
+      { key: 'So2', cat: 'So', name: '人际边界感' },
+      { key: 'So3', cat: 'So', name: '表达与真实度' }
+    ];
+
+    const CAT_NAMES = {
+      S: 'S 类｜自我',
+      E: 'E 类｜情感',
+      A: 'A 类｜认知',
+      Ac: 'Ac 类｜行为',
+      So: 'So 类｜社交'
+    };
+
+    const COMMENT_MAP = {
+      S1: { L: '自信在逃中', M: '偶尔挺像个人', H: '精神胸肌很大' },
+      S2: { L: '每天重新开机', M: '大概知道自己是谁', H: '自我说明书很厚' },
+      S3: { L: '价值观临时工', M: '原则有弹性', H: '底线带钢筋' },
+      E1: { L: '安全感欠费', M: '信任需预热', H: '心门带门铃' },
+      E2: { L: '感情省电模式', M: '投入看天气', H: '爱起来像泄洪' },
+      E3: { L: '边界像豆腐脑', M: '会黏也会跑', H: '人间防火墙' },
+      A1: { L: '世界先别吵', M: '半信半疑活着', H: '宇宙黑粉头子' },
+      A2: { L: '规矩是睡衣', M: '能卷能摆', H: '制度成精了' },
+      A3: { L: '意义先挂起', M: '偶尔仰望星空', H: '活成使命召唤' },
+      Ac1: { L: '动力在冬眠', M: '被催会动', H: '目标感冒绿光' },
+      Ac2: { L: '选择困难成精', M: '摇摆但能选', H: '下单速度吓人' },
+      Ac3: { L: '执行像散装薯片', M: '能做但会拖', H: '进度条本人' },
+      So1: { L: '社交离线状态', M: '看场合开机', H: '人群自动续杯' },
+      So2: { L: '拒绝功能未安装', M: '会客气地闪避', H: '边界写进宪法' },
+      So3: { L: '真话藏猫猫', M: '半真半营业', H: '嘴替型生物' }
+    };
+
+    const QUESTIONS = [
+      { id: 1, dim: 'S1', text: '当你一个人在房间，突然听到窗外有奇怪的声音，你的第一反应是？', options: [
+        { label: 'A', text: '立刻缩进被窝，宣布人类文明到此为止', score: 1 },
+        { label: 'B', text: '假装没听见继续玩手机，但音量默默调小', score: 2 },
+        { label: 'C', text: '冲过去看个究竟，顺便给窗外东西一个眼神教育', score: 3 }
+      ]},
+      { id: 2, dim: 'So3', text: '朋友聚会上有人开了一个你完全 get 不到的梗，所有人都在笑，你会？', options: [
+        { label: 'A', text: '也跟着假笑，笑声像系统默认提示音', score: 1 },
+        { label: 'B', text: '低头吃菜，假装自己正在进行深度咀嚼研究', score: 2 },
+        { label: 'C', text: '直接问“这是什么梗？”，把全桌变成梗文化答辩现场', score: 3 }
+      ]},
+      { id: 3, dim: 'E1', text: '对方三分钟没回消息，你的心理活动更接近？', options: [
+        { label: 'A', text: '已经开始写《论我为何不值得被爱》上中下三册', score: 1 },
+        { label: 'B', text: '先忍住，十五分钟后再把手机拿起来审讯', score: 2 },
+        { label: 'C', text: '大概在忙吧，我先去和现实生活假装很熟', score: 3 }
+      ]},
+      { id: 4, dim: 'Ac2', text: '外卖软件弹出 88 家店，你通常如何做决策？', options: [
+        { label: 'A', text: '从满减、评分、配送费看起，最后饿到开始原谅世界', score: 1 },
+        { label: 'B', text: '纠结十分钟，选择上次那家，人生像复读机', score: 2 },
+        { label: 'C', text: '三秒下单，命运给什么吃什么，主打一个胃部盲盒', score: 3 }
+      ]},
+      { id: 5, dim: 'A2', text: '如果电梯里贴着“请勿倚靠”，你更可能？', options: [
+        { label: 'A', text: '认真站直，连灵魂都不敢斜一下', score: 3 },
+        { label: 'B', text: '看一眼，象征性尊重，身体继续自由发挥', score: 2 },
+        { label: 'C', text: '开始思考“倚靠”的哲学边界，并小幅度挑战规则', score: 1 }
+      ]},
+      { id: 6, dim: 'So1', text: '你到一个全是陌生人的饭局，刚坐下空气就像刚从冰箱拿出来，你会？', options: [
+        { label: 'A', text: '自动进入壁纸模式，努力不被人发现我会呼吸', score: 1 },
+        { label: 'B', text: '等别人先开口，我负责做一个有礼貌的表情包', score: 2 },
+        { label: 'C', text: '主动破冰：“大家平时都怎么假装不累？”', score: 3 }
+      ]},
+      { id: 7, dim: 'S2', text: '被问到“你到底想成为什么样的人”时，你通常？', options: [
+        { label: 'A', text: '大脑出现 404，连客服都不知道我是谁', score: 1 },
+        { label: 'B', text: '能说个大概，但像临时拼的个人简介', score: 2 },
+        { label: 'C', text: '开始展开三年规划，仿佛自己是上市公司年报', score: 3 }
+      ]},
+      { id: 8, dim: 'E2', text: '喜欢上一个人后，你的情感投入方式更像？', options: [
+        { label: 'A', text: '省电模式，心动也只开 20% 亮度', score: 1 },
+        { label: 'B', text: '先观察，再试探，像给感情做灰度测试', score: 2 },
+        { label: 'C', text: '一键满血，连对方星座的舅舅都想了解', score: 3 }
+      ]},
+      { id: 9, dim: 'Ac1', text: '面对一个很重要但很麻烦的任务，你的启动方式是？', options: [
+        { label: 'A', text: '先躺平让任务自己反省为什么要存在', score: 1 },
+        { label: 'B', text: '拖到压力开始敲门，才礼貌性开工', score: 2 },
+        { label: 'C', text: '立刻拆计划，像把任务按在地上做体检', score: 3 }
+      ]},
+      { id: 10, dim: 'A1', text: '刷到“世界真美好”的鸡汤视频时，你的第一反应是？', options: [
+        { label: 'A', text: '默默点赞，愿意相信人间还有热汤和好人', score: 1 },
+        { label: 'B', text: '一半感动一半怀疑，像在喝兑水鸡汤', score: 2 },
+        { label: 'C', text: '打开评论区，准备围观人类大型破防现场', score: 3 }
+      ]},
+      { id: 11, dim: 'So2', text: '熟人突然让你帮一个很离谱的小忙，你会？', options: [
+        { label: 'A', text: '明明想拒绝，嘴却自己说“可以呀”', score: 1 },
+        { label: 'B', text: '委婉推脱，措辞像外交部深夜加班', score: 2 },
+        { label: 'C', text: '清晰拒绝：“这个我不方便”，边界感当场站军姿', score: 3 }
+      ]},
+      { id: 12, dim: 'S3', text: '别人都在做一件你觉得不太对的事，你会？', options: [
+        { label: 'A', text: '先跟着做，免得自己像人群里的感叹号', score: 1 },
+        { label: 'B', text: '心里不认同，动作稍微慢半拍表达抗议', score: 2 },
+        { label: 'C', text: '不做，并在内心给自己颁发“底线劳动模范”', score: 3 }
+      ]},
+      { id: 13, dim: 'E3', text: '关系变亲近后，你对“黏”和“自由”的态度是？', options: [
+        { label: 'A', text: '我可以没有边界，但不能没有你发来的表情包', score: 1 },
+        { label: 'B', text: '想靠近，也想保留一点精神阳台', score: 2 },
+        { label: 'C', text: '亲密可以，灵魂门禁卡不能随便复制', score: 3 }
+      ]},
+      { id: 14, dim: 'Ac3', text: '你列完计划之后，计划通常会？', options: [
+        { label: 'A', text: '躺在备忘录里安详退休，享年三分钟', score: 1 },
+        { label: 'B', text: '完成一半，剩下一半成为人生未解之谜', score: 2 },
+        { label: 'C', text: '按时推进，连拖延症看了都想报警', score: 3 }
+      ]},
+      { id: 15, dim: 'A3', text: '深夜突然开始思考“人为什么要活着”，你会？', options: [
+        { label: 'A', text: '算了先睡，意义明天再说，今晚电量不足', score: 1 },
+        { label: 'B', text: '想一会儿，顺手下单一杯奶茶安抚宇宙', score: 2 },
+        { label: 'C', text: '认真写下人生宣言，像要和星空签对赌协议', score: 3 }
+      ]},
+      { id: 16, dim: 'S1', text: '当别人夸你“你真的很厉害”时，你的默认反应是？', options: [
+        { label: 'A', text: '立刻否认，仿佛夸奖是烫手山芋', score: 1 },
+        { label: 'B', text: '表面谢谢，内心半信半疑地开庭', score: 2 },
+        { label: 'C', text: '收下，并在心里给对方加一颗审美星', score: 3 }
+      ]},
+      { id: 17, dim: 'E1', text: '恋爱或友谊里出现一点冷淡信号，你会？', options: [
+        { label: 'A', text: '开始脑补自己被移出群聊、世界和族谱', score: 1 },
+        { label: 'B', text: '先观察几天，像情感气象台发布黄色预警', score: 2 },
+        { label: 'C', text: '直接沟通，不把沉默养成精神蟑螂', score: 3 }
+      ]},
+      { id: 18, dim: 'So3', text: '你被问“最近怎么样”时，真实答案其实是“快碎了”，你会？', options: [
+        { label: 'A', text: '说“还行”，把灵魂折成微笑形状', score: 1 },
+        { label: 'B', text: '说“有点累”，给真实漏一条小缝', score: 2 },
+        { label: 'C', text: '说“我现在像一袋没封口的薯片”，精准且诚实', score: 3 }
+      ]},
+      { id: 19, dim: 'Ac2', text: '同事让你“随便选个方案”，你会？', options: [
+        { label: 'A', text: '做一张对比表，顺便把人生也对比崩了', score: 1 },
+        { label: 'B', text: '问两个人意见，再假装是自己决定的', score: 2 },
+        { label: 'C', text: '选一个，错了再说，反正地球还在转', score: 3 }
+      ]},
+      { id: 20, dim: null, supplement: true, text: '补充题：如果你的精神状态是一家店，它现在最像？', options: [
+        { label: 'A', text: '24小时便利店：灯还亮着，但店员已经魂飞魄散', score: 0 },
+        { label: 'B', text: '精品咖啡馆：外表很稳，内心一直在萃取痛苦', score: 0 },
+        { label: 'C', text: '倒闭清仓店：什么都打折，连尊严都买一送一', score: 0 },
+        { label: 'D', text: '寺庙文创店：看破红尘，但小票打印得很勤奋', score: 0 }
+      ]},
+      { id: 21, dim: 'A2', text: '看到别人不按流程做事但结果还不错，你会？', options: [
+        { label: 'A', text: '承认有用，但心里给流程上了三炷香', score: 3 },
+        { label: 'B', text: '觉得可以参考，规矩也不是祖传铁锅', score: 2 },
+        { label: 'C', text: '兴奋：原来世界还能这么非法又合理', score: 1 }
+      ]},
+      { id: 22, dim: 'So1', text: '你发朋友圈后，发现没人点赞，你会？', options: [
+        { label: 'A', text: '默默删除，仿佛刚刚只是互联网幻觉', score: 1 },
+        { label: 'B', text: '不删，但每隔十分钟视察一次案发现场', score: 2 },
+        { label: 'C', text: '继续发，点赞不是目的，发疯才是过程', score: 3 }
+      ]},
+      { id: 23, dim: 'S2', text: '独处一天没人联系你，你更可能感到？', options: [
+        { label: 'A', text: '我是不是被世界卸载了？', score: 1 },
+        { label: 'B', text: '有点空，但也有点爽，像精神半价房', score: 2 },
+        { label: 'C', text: '太好了，终于能听见自己脑内装修的声音', score: 3 }
+      ]},
+      { id: 24, dim: 'E2', text: '朋友深夜找你倾诉三小时，你会？', options: [
+        { label: 'A', text: '听十分钟开始灵魂出窍，表情仍然在线营业', score: 1 },
+        { label: 'B', text: '认真听，但会提醒自己明天还要做人', score: 2 },
+        { label: 'C', text: '陪聊到天亮，顺手把对方的人生 PPT 重做了', score: 3 }
+      ]},
+      { id: 25, dim: 'Ac1', text: '如果没有 deadline，你的动力通常来自哪里？', options: [
+        { label: 'A', text: '没有动力，只有床和我签订的长期合作协议', score: 1 },
+        { label: 'B', text: '偶尔被焦虑踹一脚，然后短暂复活', score: 2 },
+        { label: 'C', text: '目标在前方发光，我像精神蚊子一样飞过去', score: 3 }
+      ]},
+      { id: 26, dim: 'A1', text: '面对“努力就会有回报”这句话，你会？', options: [
+        { label: 'A', text: '愿意相信，毕竟人不能每天靠冷笑维生', score: 1 },
+        { label: 'B', text: '相信一半，另一半留给运气和玄学', score: 2 },
+        { label: 'C', text: '发出一声成熟的冷哼，像旧冰箱启动', score: 3 }
+      ]},
+      { id: 27, dim: 'So2', text: '别人突然越界评价你的生活选择，你会？', options: [
+        { label: 'A', text: '表面点头，回家把委屈腌成泡菜', score: 1 },
+        { label: 'B', text: '用玩笑挡一下，像拿棉花糖防弹', score: 2 },
+        { label: 'C', text: '直接说“谢谢，但我不需要这个建议”', score: 3 }
+      ]},
+      { id: 28, dim: 'S3', text: '当一件事能让你获利但违背你内心秩序，你会？', options: [
+        { label: 'A', text: '先拿了再说，灵魂可以之后补票', score: 1 },
+        { label: 'B', text: '纠结很久，看违背程度和收益谁嗓门大', score: 2 },
+        { label: 'C', text: '拒绝，虽然钱包在旁边哭得像水龙头', score: 3 }
+      ]},
+      { id: 29, dim: 'E3', text: '你最能接受的亲密关系距离是？', options: [
+        { label: 'A', text: '最好像连体婴共享 Wi-Fi 密码和情绪缓存', score: 1 },
+        { label: 'B', text: '可以亲密，但要有各自的小宇宙和垃圾桶', score: 2 },
+        { label: 'C', text: '互相喜欢，但别擅自进入我的精神仓库', score: 3 }
+      ]},
+      { id: 30, dim: 'Ac3', text: '你买了新课程、新书或新工具后，通常？', options: [
+        { label: 'A', text: '收藏即学会，付款即毕业，主打赛博修行', score: 1 },
+        { label: 'B', text: '学一点，停一点，像精神跳房子', score: 2 },
+        { label: 'C', text: '按计划用起来，让钱知道自己没有白来人间', score: 3 }
+      ]},
+      { id: 31, dim: 'A3', text: '最后一题：如果人生是一场游戏，你现在的状态是？', options: [
+        { label: 'A', text: '跳过剧情，只想找个保存点原地躺下', score: 1 },
+        { label: 'B', text: '主线支线都做一点，偶尔怀疑自己走错地图', score: 2 },
+        { label: 'C', text: '带着使命感推进，哪怕 NPC 都觉得你太认真', score: 3 }
+      ]}
+    ];
+
+    const TYPES = [
+      { code: 'MUM', name: '妈妈', emoji: '🧺', slogan: '全中国最稀有的妈妈人格：你不一定生过孩子，但你生过全场的气。', vector: 'HHHHHHMMHHHMMMH', desc: '你是人群里的移动急救包，别人咳一声你已经把温水、纸巾、人生建议和退烧贴端上来了。你的爱很具体，具体到像小区门口那台永远能吐出零钱的自动售货机，可靠得让人想给你交物业费。你不是控制欲强，你只是看不得世界像没叠好的被子一样皱巴巴。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'MONK', name: '僧人', emoji: '🪷', slogan: '没有那种世俗的欲望，除了下班、睡觉和外卖满减。', vector: 'MHHHMLLHLMLHLLM', desc: '你的精神状态像一座开在商场负一楼的寺庙：香火不旺，但空调很足。你不太想争，不太想吵，也不太想解释，主打一个“你说得对，但我先退出群聊”。别人卷绩效，你卷心如止水；别人争输赢，你研究怎样把人生调成静音模式。你不是没脾气，你只是把脾气供起来了。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'DEAD', name: '死者', emoji: '🪦', slogan: '一上班就原地失去生命体征，下班才短暂回魂。', vector: 'LLMLMLMMMLLLLLL', desc: '你是宇宙中唯一一台还在运行 Windows XP 的精神主机，开机慢、散热差，但居然还能处理复杂人类关系。你的日常像一只被生活反复按压的吐司，表面完整，内里已经蓬松破碎。你不是懒，你是在节能；你不是没梦想，你的梦想目前正在icu观察。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'MALO', name: '吗喽', emoji: '🐒', slogan: '摆烂打工但又不甘心，像香蕉皮上站军姿。', vector: 'MMLMLMMMLMMMLMM', desc: '你的人生像办公室里那把会自己下降的椅子：刚坐稳一点，现实就把你往下拧两圈。你一边说算了，一边偷偷较劲；一边发疯，一边把表格命名成“最终版真的最终版”。你不是没有上进心，你是上进心和摆烂心每天在脑内打羽毛球，裁判还迟到。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'CTRL', name: '拿捏者', emoji: '🎛️', slogan: '怎么样，被我拿捏了吧？连空气都想按你的流程走。', vector: 'HHHMMHHHHHHHHHH', desc: '你像一只穿西装的遥控器，看到混乱就想调频道，看到拖延就想按快进。你擅长把局面整理成表格，把人际关系梳成流程图，连吵架都能分出一二三点。你最大的问题是太像人生的项目经理，别人还在抒情，你已经开始排期验收了。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'IMSB', name: '自我攻击者', emoji: '🥊', slogan: '认真的么？我真的是傻逼么？你每天都在给自己开批斗会。', vector: 'LLLMLMMMLMLLMLL', desc: '你的脑内住着一个 24 小时营业的差评客服，别人一句话还没说完，你已经替全世界把自己骂完了。你像一台把错误提示音设成闹钟的电脑，正常运行一分钟都觉得不配。好消息是你很会反思，坏消息是你把反思用成了精神砂纸，天天把自己磨得锃亮又掉屑。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'SOLO', name: '孤儿', emoji: '🛰️', slogan: '独来独往，不是没朋友，是懒得交接精神文件。', vector: 'MHHHMLMHHMHHLLM', desc: '你像一颗有礼貌的人造卫星，偶尔经过地球，发个信号，然后继续在自己的轨道里安静绕圈。你不是冷漠，你只是觉得多数社交像强制更新：不点不行，点了更烦。你很会自洽，也很会突然消失，朋友找你像找一份被误删的压缩包。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'FAKE', name: '伪人', emoji: '🎭', slogan: '在别人面前永远是另一个自己，真实人格正在后台维护。', vector: 'MMLMLMMMLMMMHM L'.replace(/ /g,''), desc: '你的人生像多账号登录：领导面前是精装版，朋友面前是试用版，独处时才弹出“系统检测到未知生物”。你不是虚伪，你只是太懂场面，懂到真实的自己经常被挤到备忘录角落里吃灰。最离谱的是，你演得太熟练，有时候连自己都想给自己颁个最佳客串奖。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'SEXY', name: '尤物', emoji: '🦢', slogan: '天生丽质难自弃，连破防都像在拍封面。', vector: 'HHHMHMMHHHHMHHH', desc: '你像一杯加了冰的漂亮拿铁：看起来松弛，实际上每一层都在暗暗较劲。你知道自己有点东西，也不太打算装作没有；别人说你太耀眼，你可能会礼貌点头，然后把亮度调到更高。你最大的幽默是，明明在崩溃，却崩得像新品发布会现场。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'FUCK', name: '草者', emoji: '🌵', slogan: '什么都想骂一句，但骂完还会把垃圾带走。', vector: 'MHMMLHHMLMMMMHM', desc: '你像一棵长在工位上的仙人掌：不主动伤人，但谁靠太近都可能被现实扎一下。你的嘴比闹钟还准，一到离谱场景就自动报时：“这也行？”你不是脾气差，你是对世界的低效、虚伪和无意义寒暄过敏，过敏症状表现为精准吐槽。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'SHIT', name: '愤世者', emoji: '🔥', slogan: '对这个世界充满愤怒，但还会准时交水电费。', vector: 'MMLLLHHLMMMLMHM', desc: '你像一只会写社论的高压锅，外表还能正常上桌，里面已经把社会观察炖成浓汤。你不是悲观，你只是眼神太清醒，清醒到看什么都像看一份没有对齐的PPT。你嘴上说毁灭吧，手上还在把事情做完，这种反差简直像世界末日前最后一个认真排队的人。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'POOR', name: '贫穷者', emoji: '🪙', slogan: '精神和物质双重贫穷，灵魂余额不足但仍在扣费。', vector: 'LLLMLMMMLLLLLML', desc: '你像一张被反复使用的优惠券，明明已经皱了，还在努力证明自己能抵三块。你的生活哲学很朴素：能不花就不花，能不想就不想，能不崩就先别崩。最离谱的是，你的精神钱包比真实钱包还空，但你仍能掏出一点善良给别人找零。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'ATM-er', name: '送钱者', emoji: '🏧', slogan: '永远在为别人支付，连情绪手续费都自己承担。', vector: 'MMLHHMLMMHMMLLL', desc: '你像一台会说“没事”的ATM，别人一靠近就能取走你的时间、情绪、耐心和最后一口奶茶。你很慷慨，慷慨到边界像试吃台，谁来都能拿一块。你不是傻，你是太容易心软，心软得像刚出锅的年糕，别人一夹你就变形。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'BOSS', name: '老板', emoji: '🧑‍💼', slogan: '方圆五米空气自动严肃，连绿植都开始写周报。', vector: 'HHHHMHHHHHHHHMH', desc: '你像一份会走路的OKR，目标清晰、语气稳定、眼神里带着“这个事今天能闭环吗”。你不是没有人情味，只是人情味也要排进日程表。你擅长把混乱变成秩序，把问题变成任务，把朋友聚会变成复盘会，唯一的风险是大家听你说话会自动坐直。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'CATO', name: '猫猫', emoji: '🐈', slogan: '想贴贴但不想被抓，亲密关系里的反复横跳冠军。', vector: 'MMLLHLMMMLMLLMM', desc: '你像一只把门打开又不出去的猫：想被爱，怕被管；想靠近，怕被抱太紧。你的情绪有时候像猫砂盆，表面平静，里面埋了很多不能细看的人生颗粒。你最擅长在“我需要你”和“你别管我”之间闪现，操作华丽得像感情里的刺客。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'PPTX', name: '汇报精', emoji: '📊', slogan: '人生就是一场汇报，连崩溃都要配目录页。', vector: 'MHMHMHHHMMHHMMH', desc: '你像一份装订精美的年度总结，哪怕内心下暴雨，也会先把标题对齐。你擅长表达，擅长包装，也擅长把混乱说成“阶段性探索”。最可怕的是，你连emo都能总结出三点原因和两条改进措施，心理咨询师看了都想让你发模板。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'BUGG', name: '漏洞人', emoji: '🐞', slogan: '人生到处报错，但你总能用奇怪方式跑起来。', vector: 'LMLMLMMLLLLLMLM', desc: '你像一段没人敢删的祖传代码：看不懂、跑得慢、偶尔闪退，但关键时刻居然能救场。你的计划经常塌方，情绪经常弹窗，生活像边编译边祈祷。好在你有一种荒诞的生命力，别人叫韧性，你这里叫“虽然很离谱但还没死机”。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'WIFI', name: '信号人', emoji: '📶', slogan: '情绪全靠别人连接，断网一分钟就开始怀疑人生。', vector: 'LLLHHLLMLMMLHHL', desc: '你像一台没有独立套餐的精神路由器，别人一靠近你就满格，别人一沉默你就开始搜不到网络。你很会感知气氛，敏感得像刚贴的手机膜，一粒灰都能让你起泡。你不是黏人，你只是太容易把关系当充电器，插不上就低电量警告。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'LOTU', name: '锦鲤', emoji: '🐟', slogan: '相信会变好，哪怕证据只有今天奶茶没洒。', vector: 'MHMHHLLMLMHMHHM', desc: '你像一条穿着雨衣的锦鲤，世界再阴间，你也能从缝里游出一点小确幸。你不是天真，你是有一种顽强的自我修复能力，像摔坏三次还能亮的床头灯。别人觉得你乐观，你其实只是懒得把自己泡在坏消息里腌入味。最离谱的是，你的好运有时候像地铁末班车，迟到但真来。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'VOID', name: '空心人', emoji: '🕳️', slogan: '看起来没事，其实灵魂正在加载空白文档。', vector: 'LLLMLMMLLLLLLLL', desc: '你像一间装修很干净但没人入住的样板房，外表正常，里面回声很大。你不是没有情绪，只是情绪像被压缩成了zip文件，密码还忘了。你经常说“都行”，不是因为随和，而是因为系统暂时没有读取到偏好。听起来很惨，但至少你很省内存，很多人连空白都装不下。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'SUNN', name: '小太阳', emoji: '🌞', slogan: '热量稳定输出，偶尔也想把自己关机散热。', vector: 'HHHHHMLMMHHMHHH', desc: '你像一盏被大家默认不需要充电的台灯，别人阴天就找你照一照，可你自己也有灯泡发烫的时候。你擅长鼓励、照顾、活跃气氛，像人群里的快乐插线板，谁都想来蹭一下电。请注意，太阳也需要日落，不然第二天会变成煎蛋。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'ICEE', name: '冰箱', emoji: '🧊', slogan: '情绪冷藏技术专家，爱也要先放保鲜层。', vector: 'MHHHLLMHHMHHLLL', desc: '你像一台高端冰箱，外观极简，内部分区严谨，打开门才发现里面藏着过期情绪。你不太爱外放，也不擅长当场热烈，别人以为你冷，其实你只是在低温保存自己。你的真心不是没有，是需要解冻，强行微波只会爆。最搞笑的是，你冷静到连破防都像在参加食品安全检查。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'ROLL', name: '卷王', emoji: '🌀', slogan: '不是在努力，就是在为没努力感到羞愧。', vector: 'HLHHMHHHHHHHHMM', desc: '你像一台装了涡轮增压的学习机，明明已经很累，还要问自己“是不是还能再优化一下”。你的人生没有暂停键，只有“再来一版”。你不是不快乐，你是快乐也想做成可量化指标，最好还能同比增长。最荒诞的是，你休息的时候也像在完成休息KPI，躺下都带着绩效感。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'DODO', name: '渡渡鸟', emoji: '🦤', slogan: '慢半拍但很珍贵，世界太快，你选择卡顿。', vector: 'LMMHMLMLLLMLLLM', desc: '你像一只刚学会扫码点餐的渡渡鸟，动作慢，但眼神真诚。你不喜欢被催，催你就像给乌龟装赛车方向盘，除了荒诞没有意义。你有自己的节奏，只是这个节奏经常被现代社会误判为“是不是断网了”。可慢也有慢的好处，至少你不会把自己活成一根过热的数据线。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'MOON', name: '月亮', emoji: '🌙', slogan: '白天正常营业，晚上开始和宇宙对账。', vector: 'MLMHHMHHMMMLMMM', desc: '你像一盏半夜才亮的月光灯，白天处理生活，晚上处理生活给你留下的精神发票。你敏感、细腻、会想很多，想法多到像脑内开了夜市，摊位还都不打烊。你不是矫情，你只是把别人一闪而过的情绪拿回家精修了八百遍。最离谱的是，你越emo越有文采，痛苦都要排版。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'RICH', name: '富贵闲人', emoji: '🍵', slogan: '精神贵族，现实打工；嘴上松弛，闹钟六个。', vector: 'HHHHHLMHLMMHMMM', desc: '你像一张摆在工位上的度假海报，身体在打工，灵魂已经预订了海景房。你有审美，有边界，也有一点“别来沾边”的优雅疲惫。你不是不努力，你只是希望努力不要长得太丑，最好还能配一杯热茶。最搞笑的是，你明明想过云淡风轻的人生，却每天被Excel按在地上摩擦。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'RADO', name: '雷达', emoji: '📡', slogan: '空气一变你就知道，气氛界人体安检门。', vector: 'MLMHLHMMLMMLHHL', desc: '你像一台装在人群里的情绪雷达，谁语气低了半度，谁笑声有点假，你都能捕捉到。你很会读空气，读到最后空气都想给你交版权费。问题是，你太容易把别人的微表情带回家复盘，像在精神上反复查看监控录像。你不是多想，你是传感器太灵，建议偶尔拔电源。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' },
+      { code: 'HHHH', name: '傻乐者', emoji: '🤪', slogan: '匹配度全都不高？恭喜，你是系统也看不懂的快乐散装人。', vector: 'MMMMMMMMMMMMMMM', fallback: true, desc: '你像一盒彩虹色回形针，逻辑上没有必要，但出现时大家都觉得生活还能凑合。你的维度过于散装，模板看了沉默，算法看了挠头，连曼哈顿距离都想打车逃走。你不是没有人格，你是人格正在举办流动市集，今天卖边界，明天卖摆烂，后天买一送一。笑死，系统测不准你，可能不是你复杂，是系统太朴素。不过话说回来，测试说的也不一定对，毕竟出题的人自己都是 SHIT（愤世者）。' }
+    ];
+
+    let state = loadState();
+    const app = document.getElementById('app');
+
+    function defaultState() {
+      return { page: 'home', current: 0, answers: {}, result: null };
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!saved || typeof saved !== 'object') return defaultState();
+        return { ...defaultState(), ...saved, answers: saved.answers || {} };
+      } catch (e) {
+        return defaultState();
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function setPage(page) {
+      state.page = page;
+      saveState();
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function escapeHTML(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function render() {
+      if (state.page === 'home') renderHome();
+      if (state.page === 'test') renderTest();
+      if (state.page === 'result') renderResult();
+    }
+
+    function renderHome() {
+      app.innerHTML = `
+        <section class="hero page">
+          <div class="hero-card">
+            <div class="eyebrow">🌿 超级边界型人格测试</div>
+            <h1>MBTI 已经过时，SBTI 来了。</h1>
+            <p class="subtitle">超级边界型人格测试</p>
+            <p class="intro">这是一套不严谨、不科学、但可能准到让你想报警的人格小测试。它不会解释你的童年，也不会指导你的人生，只会用一本正经的方式，把你那些边界、摆烂、嘴硬、深夜 emo 和突然发疯，包装成一个看起来很有学术感的四字母代号。</p>
+            <button class="btn big" id="startBtn">开始测试 →</button>
+          </div>
+        </section>
+      `;
+      document.getElementById('startBtn').addEventListener('click', () => {
+        state.page = 'test';
+        state.current = Math.min(state.current || 0, QUESTIONS.length - 1);
+        saveState();
+        render();
+      });
+    }
+
+    function renderTest() {
+      const q = QUESTIONS[state.current];
+      const answered = state.answers[q.id] !== undefined;
+      const progress = Math.round((Object.keys(state.answers).length / QUESTIONS.length) * 100);
+      const isLast = state.current === QUESTIONS.length - 1;
+      app.innerHTML = `
+        <section class="page">
+          <div class="test-head">
+            <div class="topline">
+              <span>SBTI 测试进行中</span>
+              <span>${state.current + 1}/${QUESTIONS.length}</span>
+            </div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:${progress}%"></div></div>
+          </div>
+          <article class="question-card">
+            <span class="hidden-tag">${q.supplement ? '隐藏补充题' : '维度已隐藏'}</span>
+            <h2 class="q-title">Q${q.id}. ${escapeHTML(q.text)}</h2>
+            <div class="options">
+              ${q.options.map((opt, idx) => `
+                <button class="option ${state.answers[q.id] === idx ? 'selected' : ''}" data-idx="${idx}">
+                  <span class="letter">${opt.label}</span>
+                  <span>${escapeHTML(opt.text)}</span>
+                </button>
+              `).join('')}
+            </div>
+            <div class="question-actions">
+              <button class="btn ghost" id="prevBtn" ${state.current === 0 ? 'style="visibility:hidden"' : ''}>← 上一题</button>
+              <span class="tiny-note">选中后会自动进入下一题；中途刷新也不会丢进度。</span>
+              ${isLast && answered ? '<button class="btn" id="submitBtn">提交，接受精准冒犯 →</button>' : ''}
+            </div>
+          </article>
+        </section>
+      `;
+
+      document.querySelectorAll('.option').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.idx);
+          state.answers[q.id] = idx;
+          saveState();
+          renderTest();
+          if (!isLast) {
+            setTimeout(() => {
+              state.current += 1;
+              saveState();
+              render();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 230);
+          }
+        });
+      });
+
+      const prevBtn = document.getElementById('prevBtn');
+      if (prevBtn) prevBtn.addEventListener('click', () => {
+        if (state.current > 0) {
+          state.current -= 1;
+          saveState();
+          render();
+        }
+      });
+
+      const submitBtn = document.getElementById('submitBtn');
+      if (submitBtn) submitBtn.addEventListener('click', () => {
+        if (Object.keys(state.answers).length < QUESTIONS.length) {
+          alert('还有题没答完，SBTI 暂时无法对你的灵魂进行不负责任的归类。');
+          return;
+        }
+        state.result = calculateResult();
+        state.page = 'result';
+        saveState();
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    function levelFromRaw(raw) {
+      if (raw <= 2) return 'L';
+      if (raw <= 4) return 'M';
+      return 'H';
+    }
+
+    function levelValue(level) {
+      return { L: 1, M: 2, H: 3 }[level] || 2;
+    }
+
+    function calculateScores() {
+      const raw = {};
+      DIMENSIONS.forEach(d => raw[d.key] = 0);
+      QUESTIONS.forEach(q => {
+        if (!q.dim) return;
+        const idx = state.answers[q.id];
+        const opt = q.options[idx];
+        raw[q.dim] += opt ? opt.score : 2;
+      });
+      return DIMENSIONS.map(d => {
+        const score = raw[d.key];
+        const level = levelFromRaw(score);
+        return { ...d, score, level, value: levelValue(level), comment: COMMENT_MAP[d.key][level] };
+      });
+    }
+
+    function calculateResult() {
+      const dimScores = calculateScores();
+      const userValues = dimScores.map(d => d.value);
+      const candidates = TYPES.filter(t => !t.fallback).map(t => {
+        const values = t.vector.split('').map(levelValue);
+        const distance = userValues.reduce((sum, v, i) => sum + Math.abs(v - values[i]), 0);
+        const hits = userValues.reduce((sum, v, i) => sum + (v === values[i] ? 1 : 0), 0);
+        const match = Math.max(0, Math.round((1 - distance / 30) * 100));
+        return { ...t, distance, hits, match };
+      }).sort((a, b) => {
+        if (a.distance !== b.distance) return a.distance - b.distance;
+        if (a.hits !== b.hits) return b.hits - a.hits;
+        return Math.random() - 0.5;
+      });
+
+      let type = candidates[0];
+      if (!type || type.match < 60) {
+        const fallback = TYPES.find(t => t.fallback);
+        type = { ...fallback, distance: 30, hits: 0, match: 59 };
+      }
+      return { type, dimScores };
+    }
+
+    function renderResult() {
+      if (!state.result) {
+        state.result = calculateResult();
+        saveState();
+      }
+      const { type, dimScores } = state.result;
+      const grouped = dimScores.reduce((acc, d) => {
+        acc[d.cat] = acc[d.cat] || [];
+        acc[d.cat].push(d);
+        return acc;
+      }, {});
+
+      app.innerHTML = `
+        <section class="result-grid page">
+          <article class="result-card">
+            <div class="avatar-card"><div class="avatar">${type.emoji}</div></div>
+            <div>
+              <div class="code">${escapeHTML(type.code)}</div>
+              <h1 class="type-name">${escapeHTML(type.name)}</h1>
+              <p class="slogan">${escapeHTML(type.slogan)}</p>
+              <div class="match-line">
+                <span class="pill">精准命中 ${type.hits}/15 维</span>
+                <span class="pill">匹配度 ${type.match}%</span>
+              </div>
+            </div>
+          </article>
+
+          <div class="mini-grid">
+            <article class="mini-card">
+              <h2>该人格的简单解读</h2>
+              <p class="read-text">${escapeHTML(type.desc)}</p>
+            </article>
+            <article class="mini-card">
+              <h2>十五维度评分</h2>
+              <div class="dims">
+                ${Object.keys(CAT_NAMES).map(cat => `
+                  <div class="cat">
+                    <div class="cat-title"><span>${CAT_NAMES[cat]}</span><span>${grouped[cat].length} 项</span></div>
+                    ${grouped[cat].map(d => `
+                      <div class="dim-row">
+                        <span class="dim-name">${d.key} ${d.name}</span>
+                        <span class="grade">${d.level}｜${d.score}</span>
+                        <span class="dim-comment">${d.comment}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                `).join('')}
+              </div>
+            </article>
+          </div>
+
+          <p class="disclaimer">本测试不严谨、不科学、不负责，如有雷同纯属缘分</p>
+          <div class="footer-actions">
+            <button class="btn" id="restartBtn">重新测试</button>
+            <button class="btn ghost" id="reviewBtn">回看题目</button>
+          </div>
+        </section>
+      `;
+      document.getElementById('restartBtn').addEventListener('click', () => {
+        localStorage.removeItem(STORAGE_KEY);
+        state = defaultState();
+        render();
+      });
+      document.getElementById('reviewBtn').addEventListener('click', () => {
+        state.page = 'test';
+        state.current = 0;
+        saveState();
+        render();
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
